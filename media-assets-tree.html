@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media-Assets Directory Structure</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📁 Media-Assets Directory Structure</h1>
+        <p class="subtitle">Me-Commerce media management hierarchy</p>
+
+        <div class="mermaid">
+            graph TD
+            A["📁 media_assets/"]
+            B["📁 artists/"]
+
+            C["📁 19-StevieWonder/"]
+            D["📁 23-Cameo/"]
+            E["📁 artist_id/"]
+
+            C1["📁 products/"]
+            C2["📁 profile/"]
+            D1["📁 products/"]
+            D2["📁 profile/"]
+            E1["📁 products/"]
+            E2["📁 profile/"]
+
+            C1M["📁 music/"]
+            C1P["📁 photos/"]
+            C1V["📁 videos/"]
+
+            D1M["📁 music/"]
+            D1P["📁 photos/"]
+            D1V["📁 videos/"]
+
+            E1M["📁 music/"]
+            E1P["📁 photos/"]
+            E1V["📁 videos/"]
+
+            C2A["🖼️ avatar_v1.bmp"]
+            C2B["🖼️ banner_main.bmp"]
+
+            D2A["🖼️ avatar_v1.bmp"]
+            D2B["🖼️ banner_main.bmp"]
+
+            A --> B
+            B --> C
+            B --> D
+            B --> E
+
+            C --> C1
+            C --> C2
+            D --> D1
+            D --> D2
+            E --> E1
+            E --> E2
+
+            C1 --> C1M
+            C1 --> C1P
+            C1 --> C1V
+
+            D1 --> D1M
+            D1 --> D1P
+            D1 --> D1V
+
+            E1 --> E1M
+            E1 --> E1P
+            E1 --> E1V
+
+            C2 --> C2A
+            C2 --> C2B
+            D2 --> D2A
+            D2 --> D2B
+
+            style A fill:#2d3748,stroke:#4299e1,stroke-width:3px,color:#fff
+            style B fill:#2d3748,stroke:#4299e1,stroke-width:2px,color:#fff
+            style C fill:#2b6cb0,stroke:#63b3ed,color:#fff
+            style D fill:#2b6cb0,stroke:#63b3ed,color:#fff
+            style E fill:#2b6cb0,stroke:#63b3ed,color:#fff
+            style C1 fill:#1e3a5f,stroke:#90cdf4,color:#fff
+            style C2 fill:#1e3a5f,stroke:#90cdf4,color:#fff
+            style D1 fill:#1e3a5f,stroke:#90cdf4,color:#fff
+            style D2 fill:#1e3a5f,stroke:#90cdf4,color:#fff
+            style E1 fill:#1e3a5f,stroke:#90cdf4,color:#fff
+            style E2 fill:#1e3a5f,stroke:#90cdf4,color:#fff
+            style C1M fill:#1a365d,stroke:#6db3f2,color:#fff
+            style C1P fill:#1a365d,stroke:#6db3f2,color:#fff
+            style C1V fill:#1a365d,stroke:#6db3f2,color:#fff
+            style D1M fill:#1a365d,stroke:#6db3f2,color:#fff
+            style D1P fill:#1a365d,stroke:#6db3f2,color:#fff
+            style D1V fill:#1a365d,stroke:#6db3f2,color:#fff
+            style E1M fill:#1a365d,stroke:#6db3f2,color:#fff
+            style E1P fill:#1a365d,stroke:#6db3f2,color:#fff
+            style E1V fill:#1a365d,stroke:#6db3f2,color:#fff
+            style C2A fill:#0d1b2a,stroke:#4299e1,color:#fff
+            style C2B fill:#0d1b2a,stroke:#4299e1,color:#fff
+            style D2A fill:#0d1b2a,stroke:#4299e1,color:#fff
+            style D2B fill:#0d1b2a,stroke:#4299e1,color:#fff
+        </div>
+
+        <div class="controls">
+            <button onclick="downloadSVG()">⬇️ Download as SVG</button>
+            <button onclick="downloadPNG()">⬇️ Download as PNG</button>
+            <button onclick="copyCode()">📋 Copy Diagram Code</button>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+        async function downloadSVG() {
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg) {
+                alert('Diagram not rendered yet. Please wait.');
+                return;
+            }
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svg);
+            const blob = new Blob([svgString], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'media-assets-tree.svg';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function downloadPNG() {
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg) {
+                alert('Diagram not rendered yet. Please wait.');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const img = new Image();
+
+            img.onload = function () {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'media-assets-tree.png';
+                link.click();
+            };
+
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+        }
+
+        function copyCode() {
+            const code = `graph TD
+    A["📁 media_assets/"]
+    B["📁 artists/"]
+    
+    C["📁 19-StevieWonder/"]
+    D["📁 23-Cameo/"]
+    E["📁 artist_id/"]
+    
+    C1["📁 products/"]
+    C2["📁 profile/"]
+    D1["📁 products/"]
+    D2["📁 profile/"]
+    E1["📁 products/"]
+    E2["📁 profile/"]
+    
+    C1M["📁 music/"]
+    C1P["📁 photos/"]
+    C1V["📁 videos/"]
+    
+    D1M["📁 music/"]
+    D1P["📁 photos/"]
+    D1V["📁 videos/"]
+    
+    E1M["📁 music/"]
+    E1P["📁 photos/"]
+    E1V["📁 videos/"]
+    
+    C2A["🖼️ avatar_v1.bmp"]
+    C2B["🖼️ banner_main.bmp"]
+    
+    D2A["🖼️ avatar_v1.bmp"]
+    D2B["🖼️ banner_main.bmp"]
+    
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    
+    C --> C1
+    C --> C2
+    D --> D1
+    D --> D2
+    E --> E1
+    E --> E2
+    
+    C1 --> C1M
+    C1 --> C1P
+    C1 --> C1V
+    
+    D1 --> D1M
+    D1 --> D1P
+    D1 --> D1V
+    
+    E1 --> E1M
+    E1 --> E1P
+    E1 --> E1V
+    
+    C2 --> C2A
+    C2 --> C2B
+    D2 --> D2A
+    D2 --> D2B`;
+
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Diagram code copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+
+</html>
