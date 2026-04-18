@@ -13,9 +13,14 @@ import AdminEditProduct from './pages/AdminEditProduct';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminProducts from './pages/AdminProducts';
+import AdminOrders from './pages/AdminOrders';
 import GlobalAudioPlayer from './components/GlobalAudioPlayer';
+import CartDrawer from './components/CartDrawer';
+import { useCartStore } from './store/cartStore';
 
 function App() {
+  const { isDrawerOpen, closeDrawer } = useCartStore();
+
   return (
     <BrowserRouter>
       <Navbar />
@@ -35,8 +40,10 @@ function App() {
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/products/edit/:id" element={<AdminEditProduct />} />
           <Route path="/admin/add-product" element={<AdminAddProduct />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
         </Routes>
       </main>
+      <CartDrawer isOpen={isDrawerOpen} onClose={closeDrawer} />
       <GlobalAudioPlayer />
     </BrowserRouter>
   );

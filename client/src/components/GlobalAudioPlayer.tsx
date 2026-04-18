@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, X } from 'lucide-react';
 import { useAudioStore } from '../store/audioStore';
 
 export default function GlobalAudioPlayer() {
-  const { playlist, currentTrackIndex, isPlaying, togglePlay, nextTrack, prevTrack, setIsPlaying } = useAudioStore();
+  const { playlist, currentTrackIndex, isPlaying, togglePlay, nextTrack, prevTrack, setIsPlaying, clearPlayer } = useAudioStore();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -102,6 +102,13 @@ export default function GlobalAudioPlayer() {
       
       <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>
         Track {currentTrackIndex + 1} of {playlist.length}
+        <button 
+          onClick={clearPlayer} 
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)', marginLeft: 'var(--spacing-4)' }}
+          title="Close Player"
+        >
+          <X size={18} />
+        </button>
       </div>
     </div>
   )

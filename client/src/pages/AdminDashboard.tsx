@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Users, Mic2, Library } from 'lucide-react';
+import { Users, Mic2, Library, Package } from 'lucide-react';
 
 const AdminDashboard = () => {
 
@@ -21,6 +21,12 @@ const AdminDashboard = () => {
       description: 'Manage tangible physical items and lossless digital masters actively serving down the storefront pipeline.',
       path: '/admin/products',
       icon: <Library size={48} strokeWidth={1.5} color="var(--color-success)" />
+    },
+    {
+      title: 'Order Fulfillment',
+      description: 'Reconcile digital distribution rights and mark physical vinyl shipments as successfully shipped securely.',
+      path: '/admin/orders',
+      icon: <Package size={48} strokeWidth={1.5} color="var(--color-accent-terracotta)" />
     }
   ];
 

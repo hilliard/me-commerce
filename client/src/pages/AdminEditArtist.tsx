@@ -26,6 +26,23 @@ export default function AdminEditArtist() {
     fetchContext();
   }, [id]);
 
+  const handleRemoveRosterMember = async (humanId: number) => {
+    if (!confirm('Are you strictly sure you want to decouple this member from the band?')) return;
+    try {
+      const res = await fetch(`/api/admin/artists/${id}/members/${humanId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchContext();
+      } else {
+        const data = await res.json();
+        alert(data.error);
+      }
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
   const addMemberRow = () => {
     setNewMembers([...newMembers, { id: Date.now(), firstName: '', lastName: '', email: '', role: '' }]);
   };
@@ -99,6 +116,7 @@ export default function AdminEditArtist() {
                   <th style={{ padding: 'var(--spacing-4)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Name</th>
                   <th style={{ padding: 'var(--spacing-4)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Email</th>
                   <th style={{ padding: 'var(--spacing-4)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Role</th>
+                  <th style={{ padding: 'var(--spacing-4)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,6 +125,15 @@ export default function AdminEditArtist() {
                     <td style={{ padding: 'var(--spacing-4)' }}>{m.firstName} {m.lastName}</td>
                     <td style={{ padding: 'var(--spacing-4)', color: 'var(--color-text-secondary)' }}>{m.email}</td>
                     <td style={{ padding: 'var(--spacing-4)', color: 'var(--color-accent-secondary)' }}>{m.role || 'Member'}</td>
+                    <td style={{ padding: 'var(--spacing-4)' }}>
+                      <button 
+                         className="btn-secondary" 
+                         style={{ color: 'var(--color-accent-terracotta)', borderColor: 'var(--color-accent-terracotta)', padding: '4px 12px', fontSize: '0.8rem' }}
+                         onClick={() => handleRemoveRosterMember(m.id)}
+                      >
+                        Remove
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

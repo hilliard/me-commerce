@@ -74,3 +74,5 @@ Other good options: Next.js or Astro for the frontend, Convex or Firebase for th
 
  Deploy to test server, then to production server.  
 
+ (If you ever want to test the Webhook locally, Stripe provides an executable CLI stripe listen --forward-to localhost:5000/api/stripe/webhook! But your entire commerce engine is inherently perfectly theoretically ready to go!)
+

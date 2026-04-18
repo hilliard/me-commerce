@@ -7,6 +7,7 @@ import { authRouter } from './routes/auth.js';
 import { requireAuth, requireAdmin } from './middleware/auth.js';
 import { adminRouter } from './routes/admin.js';
 import { musicRouter } from './routes/music.js';
+import { checkoutRouter, webhookRouter } from './routes/checkout.js';
 import Stripe from 'stripe';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,6 +25,10 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
+
+// Webhook requires strict RAW completely bypassing express.json parser explicitly
+app.use('/api/stripe', express.raw({ type: 'application/json' }), webhookRouter);
+
 app.use(express.json());
 
 // Expose static media_assets mapping directly matching our architectural provisioning
@@ -32,6 +37,7 @@ app.use('/media_assets', express.static(path.join(__dirname, '../public/media_as
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/products', musicRouter); // Intercepts /api/products/:handle/tracks
+app.use('/api/checkout', checkoutRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

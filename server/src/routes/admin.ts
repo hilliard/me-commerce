@@ -4,8 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { db } from '../db/db.js';
-import { artists, humans, products, songs, productSongs, artistMembers, artistManagers } from '../db/schema.js';
-import { eq, sql } from 'drizzle-orm';
+import { artists, humans, products, songs, productSongs, artistMembers, artistManagers, orders, orderItems } from '../db/schema.js';
+import { eq, sql, desc } from 'drizzle-orm';
 import { provisionArtistDirectories, ROOT_MEDIA_DIR, generateArtistTreeName } from '../services/mediaService.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 
@@ -381,24 +381,52 @@ adminRouter.post('/artists/:id/members', async (req, res) => {
     for (const m of members) {
       if (!m.firstName || !m.lastName || !m.email) continue;
       
-      // 1. Spawn absolute independent human structurally
-      const [auxHuman] = await db.insert(humans).values({
-        firstName: m.firstName,
-        lastName: m.lastName,
-        email: m.email.toLowerCase()
-      }).returning();
-
-      // 2. Map explicit structural bridge formally
-      await db.insert(artistMembers).values({
-        artistId: Number(id),
-        humanId: auxHuman.id,
-        role: m.role || 'Member'
-      });
+      const normalizedEmail = m.email.toLowerCase();
+      
+      // Look up existing human structurally
+      const [existingHuman] = await db.select().from(humans).where(eq(humans.email, normalizedEmail)).limit(1);
+      
+      let humanIdTarget = existingHuman?.id;
+      
+      if (!humanIdTarget) {
+        // Spawn absolute independent human structurally
+        const [auxHuman] = await db.insert(humans).values({
+          firstName: m.firstName,
+          lastName: m.lastName,
+          email: normalizedEmail
+        }).returning();
+        humanIdTarget = auxHuman.id;
+      }
+      
+      // Check if bridge mapping already exists
+      const [existingBridge] = await db.select()
+        .from(artistMembers)
+        .where(sql`${artistMembers.artistId} = ${Number(id)} AND ${artistMembers.humanId} = ${humanIdTarget}`)
+        .limit(1);
+        
+      if (!existingBridge) {
+        // Map explicit structural bridge formally
+        await db.insert(artistMembers).values({
+          artistId: Number(id),
+          humanId: humanIdTarget,
+          role: m.role || 'Member'
+        });
+      }
     }
 
     res.status(201).json({ message: 'Band Members structurally appended to brand securely.' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+adminRouter.delete('/artists/:id/members/:humanId', async (req, res) => {
+  try {
+    const { id, humanId } = req.params;
+    await db.delete(artistMembers).where(sql`${artistMembers.artistId} = ${Number(id)} AND ${artistMembers.humanId} = ${Number(humanId)}`);
+    res.json({ message: 'Member successfully removed off the active roster' });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
   }
 });
 
@@ -569,5 +597,56 @@ adminRouter.patch('/products/:id', memUpload.array('mediaFiles'), async (req, re
     res.json({ message: 'Product natively synchronized!' });
   } catch(e: any) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+// Explicit Order Fulfillment Aggregation Routes
+adminRouter.get('/orders', async (req, res) => {
+  try {
+    const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt));
+    
+    // Natively aggressively fetching orderItems mapping physically to titles 
+    const populatedOrders = await Promise.all(allOrders.map(async (o) => {
+      const items = await db.select({
+        id: orderItems.id,
+        quantity: orderItems.quantity,
+        priceAtTime: orderItems.priceAtTime,
+        productTitle: products.title,
+        songTitle: songs.title,
+      })
+      .from(orderItems)
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .leftJoin(songs, eq(orderItems.songId, songs.id))
+      .where(eq(orderItems.orderId, o.id));
+
+      return {
+        ...o,
+        items
+      };
+    }));
+
+    res.json(populatedOrders);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+adminRouter.patch('/orders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!['pending', 'paid', 'shipped', 'delivered'].includes(status)) {
+      res.status(400).json({ error: 'Invalid strict fulfillment state completely unauthorized' });
+      return;
+    }
+
+    await db.update(orders)
+      .set({ status })
+      .where(eq(orders.id, Number(id)));
+
+    res.json({ message: `Order technically marked statically as ${status}` });
+  } catch(error: any) {
+    res.status(500).json({ error: error.message });
   }
 });

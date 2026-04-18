@@ -10,7 +10,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<any>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const { addItem, openDrawer } = useCartStore();
-  const { setPlaylist, playTrack, currentTrackIndex, isPlaying, playlist } = useAudioStore();
+  const { playlist, currentTrackIndex, isPlaying, setPlaylist, playTrack, togglePlay } = useAudioStore();
 
   useEffect(() => {
     // 1. Fetch product
@@ -46,6 +46,8 @@ export default function ProductDetail() {
   const handlePlayTrack = (index: number) => {
     if (!isCurrentPlaylist) {
       setPlaylist(tracks, index);
+    } else if (currentTrackIndex === index) {
+      togglePlay();
     } else {
       playTrack(index);
     }
