@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
-  productId: number;
+  productId?: number;
+  songId?: number;
   handle: string;
   title: string;
   artist?: string;
@@ -14,8 +15,8 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
-  removeItem: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeItem: (idParams: { productId?: number; songId?: number }) => void;
+  updateQuantity: (idParams: { productId?: number; songId?: number }, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
@@ -32,23 +33,41 @@ export const useCartStore = create<CartState>()(
       openDrawer: () => set({ isDrawerOpen: true }),
       closeDrawer: () => set({ isDrawerOpen: false }),
       addItem: (item) => set((state) => {
-        const existingItem = state.items.find((i) => i.productId === item.productId);
+        // Deeply accurately verify uniqueness
+        const existingItem = state.items.find((i) => 
+          (item.productId !== undefined && i.productId === item.productId) || 
+          (item.songId !== undefined && i.songId === item.songId)
+        );
         if (existingItem) {
           return {
-            items: state.items.map((i) =>
-              i.productId === item.productId ? { ...i, quantity: i.quantity + 1 } : i
-            ),
+            items: state.items.map((i) => {
+              const matchesProd = item.productId !== undefined && i.productId === item.productId;
+              const matchesSong = item.songId !== undefined && i.songId === item.songId;
+              if (matchesProd || matchesSong) {
+                return { ...i, quantity: i.quantity + 1 };
+              }
+              return i;
+            })
           };
         }
         return { items: [...state.items, { ...item, quantity: 1 }] };
       }),
-      removeItem: (productId) => set((state) => ({
-        items: state.items.filter((i) => i.productId !== productId),
+      removeItem: ({ productId, songId }) => set((state) => ({
+        items: state.items.filter((i) => {
+            if (productId !== undefined) return i.productId !== productId;
+            if (songId !== undefined) return i.songId !== songId;
+            return true;
+        }),
       })),
-      updateQuantity: (productId, quantity) => set((state) => ({
-        items: state.items.map((i) =>
-          i.productId === productId ? { ...i, quantity: Math.max(0, quantity) } : i
-        ).filter(i => i.quantity > 0),
+      updateQuantity: ({ productId, songId }, quantity) => set((state) => ({
+        items: state.items.map((i) => {
+            const matchesProd = productId !== undefined && i.productId === productId;
+            const matchesSong = songId !== undefined && i.songId === songId;
+            if (matchesProd || matchesSong) {
+                return { ...i, quantity: Math.max(0, quantity) };
+            }
+            return i;
+        }).filter(i => i.quantity > 0),
       })),
       clearCart: () => set({ items: [] }),
       getCartTotal: () => {

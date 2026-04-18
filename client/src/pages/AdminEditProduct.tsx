@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface TrackInput {
@@ -14,9 +15,14 @@ interface TrackInput {
   genre: string;
   featuredArtist: string;
   isExplicit: boolean;
+  songId?: number;
+  existingPathUrl?: string;
 }
 
-export default function AdminAddProduct() {
+export default function AdminEditProduct() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [productType, setProductType] = useState('album');
   const [title, setTitle] = useState('');
   const [artistId, setArtistId] = useState('');
@@ -28,6 +34,46 @@ export default function AdminAddProduct() {
   const [stock, setStock] = useState('12');
 
   const [tracks, setTracks] = useState<TrackInput[]>([]);
+  const [deleteTrackIds, setDeleteTrackIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/admin/products/${id}/full`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) {
+          setTitle(data.title || '');
+          setProductType(data.productType || 'album');
+          setArtistId(data.artistId?.toString() || '');
+          setPrice(data.price?.toString() || '0.00');
+          setImagePath(data.image || '');
+          setDescription(data.description || '');
+          setYear(data.year?.toString() || '');
+          setGenre(data.genre || '');
+          setStock(data.stock?.toString() || '0');
+
+          if (data.tracks && Array.isArray(data.tracks)) {
+            const loaded: TrackInput[] = data.tracks.map((t: any, idx: number) => ({
+               id: Date.now() + idx,
+               songId: t.songId,
+               trackNumber: t.trackOrder?.toString() || (idx + 1).toString(),
+               title: t.title || '',
+               duration: t.durationSeconds?.toString() || '',
+               bpm: t.bpm?.toString() || '',
+               isrc: t.isrc || '',
+               file: null,
+               fileFormat: t.fileFormat || 'MP3',
+               price: t.price?.toString() || '0.99',
+               genre: t.genre || '',
+               featuredArtist: t.featuredArtist || '',
+               isExplicit: t.isExplicit || false,
+               existingPathUrl: t.pathUrl
+            }));
+            setTracks(loaded);
+          }
+        }
+      })
+      .catch(e => console.error(e));
+  }, [id]);
 
   const addTrackRow = () => {
     setTracks([...tracks, {
@@ -51,6 +97,10 @@ export default function AdminAddProduct() {
   };
 
   const removeTrack = (id: number) => {
+    const target = tracks.find(t => t.id === id);
+    if (target && target.songId) {
+       setDeleteTrackIds([...deleteTrackIds, target.songId]);
+    }
     setTracks(tracks.filter(t => t.id !== id));
   };
 
@@ -71,6 +121,7 @@ export default function AdminAddProduct() {
     formData.append('year', year || '');
     formData.append('genre', genre || '');
     formData.append('stockQuantity', stock || '0');
+    formData.append('deleteTrackIds', JSON.stringify(deleteTrackIds));
 
     // Serialize all the raw metadata except the File object
     const trackDetails = tracks.map(t => ({
@@ -84,7 +135,9 @@ export default function AdminAddProduct() {
       genre: t.genre === 'Use Album Genre' ? genre : t.genre,
       featuredArtist: t.featuredArtist,
       isExplicit: t.isExplicit,
-      hasFile: !!t.file
+      hasFile: !!t.file,
+      songId: t.songId,
+      existingPathUrl: t.existingPathUrl
     }));
 
     formData.append('trackDetails', JSON.stringify(trackDetails));
@@ -96,14 +149,14 @@ export default function AdminAddProduct() {
     });
 
     try {
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
-        body: formData // Boundaries injected by browser
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: 'PATCH',
+        body: formData 
       });
       const data = await res.json();
       if (res.ok) {
-        alert('Product securely architected and media provisioned!');
-        // optionally reset here
+        alert('Product securely architected and media formally updated!');
+        navigate('/admin/products');
       } else {
         alert(data.error);
       }
@@ -116,7 +169,7 @@ export default function AdminAddProduct() {
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: 'var(--spacing-8) 0', color: 'white' }}>
       <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-8)' }}>
         <h1 style={{ fontSize: '3rem', fontFamily: 'var(--font-heading)' }}>Artestry Defined</h1>
-        <h2 style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)', fontWeight: 400 }}>Add New Product</h2>
+        <h2 style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)', fontWeight: 400 }}>Edit Deep Media Product</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: 'var(--spacing-8)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-6)' }}>
@@ -279,7 +332,7 @@ export default function AdminAddProduct() {
           </div>
         )}
 
-        <button type="submit" className="btn-primary" style={{ marginTop: 'var(--spacing-6)', width: '100%', fontSize: '1.2rem', padding: 'var(--spacing-4)' }}>Add Product</button>
+        <button type="submit" className="btn-primary" style={{ marginTop: 'var(--spacing-6)', width: '100%', fontSize: '1.2rem', padding: 'var(--spacing-4)' }}>Commit Deep Update</button>
       </form>
     </div>
   )

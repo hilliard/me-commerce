@@ -59,7 +59,7 @@ const Home = () => {
         {/* Admin Navigation Portal (Mock Auth bypass for sandbox) */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--spacing-4)', marginBottom: 'var(--spacing-8)' }}>
           <Link to="/admin/add-product" className="btn-primary" style={{ backgroundColor: 'var(--color-accent-primary)', color: 'white', textDecoration: 'none' }}>+ Add Product</Link>
-          <Link to="/admin" className="btn-primary" style={{ textDecoration: 'none' }}>Manage Products</Link>
+          <Link to="/admin/products" className="btn-primary" style={{ textDecoration: 'none' }}>Manage Products</Link>
           <Link to="/admin" className="btn-primary" style={{ textDecoration: 'none' }}>Manage Songs</Link>
         </div>
 

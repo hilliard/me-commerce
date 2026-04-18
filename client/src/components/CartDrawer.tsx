@@ -38,10 +38,10 @@ const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
                   <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>${item.price} each</div>
                 </div>
                 <div className="flex-center" style={{ gap: 'var(--spacing-2)' }}>
-                  <button aria-label="Decrease quantity" onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="btn-secondary" style={{ padding: '2px 8px' }}>-</button>
+                  <button aria-label="Decrease quantity" onClick={() => updateQuantity({ productId: item.productId, songId: item.songId }, item.quantity - 1)} className="btn-secondary" style={{ padding: '2px 8px' }}>-</button>
                   <span aria-live="polite" style={{ minWidth: '1.5rem', textAlign: 'center' }}>{item.quantity}</span>
-                  <button aria-label="Increase quantity" onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="btn-secondary" style={{ padding: '2px 8px' }}>+</button>
-                  <button aria-label={`Remove ${item.title} from cart`} onClick={() => removeItem(item.productId)} style={{ marginLeft: 'var(--spacing-2)', color: 'var(--color-accent-terracotta)', background: 'transparent', border: 'none', cursor: 'pointer' }}>✕</button>
+                  <button aria-label="Increase quantity" onClick={() => updateQuantity({ productId: item.productId, songId: item.songId }, item.quantity + 1)} className="btn-secondary" style={{ padding: '2px 8px' }}>+</button>
+                  <button aria-label={`Remove ${item.title} from cart`} onClick={() => removeItem({ productId: item.productId, songId: item.songId })} style={{ marginLeft: 'var(--spacing-2)', color: 'var(--color-accent-terracotta)', background: 'transparent', border: 'none', cursor: 'pointer' }}>✕</button>
                 </div>
               </div>
             ))

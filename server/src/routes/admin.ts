@@ -205,7 +205,7 @@ adminRouter.post('/artists/full', async (req, res) => {
 adminRouter.post('/products', memUpload.array('mediaFiles'), async (req, res) => {
   try {
     const { 
-      productType, title, artistId, price, imagePath, year, genre, stockQuantity, trackDetails 
+      productType, title, artistId, price, imagePath, year, genre, stockQuantity, trackDetails, description 
     } = req.body;
 
     if (!title || !artistId || !price) {
@@ -229,7 +229,8 @@ adminRouter.post('/products', memUpload.array('mediaFiles'), async (req, res) =>
       image: imagePath,
       year: Number(year),
       genre,
-      stock: Number(stockQuantity)
+      stock: Number(stockQuantity),
+      description
     }).returning();
 
     // 2. Process Files against new Schema logic
@@ -304,6 +305,25 @@ adminRouter.get('/artists/stats', async (req, res) => {
     .groupBy(artists.id, artists.stageName, artists.isGroup);
     
     res.json(stats);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+adminRouter.get('/products/stats', async (req, res) => {
+  try {
+    const pStats = await db.select({
+      id: products.id,
+      title: products.title,
+      price: products.price,
+      stock: products.stock,
+      productType: products.productType,
+      artistName: artists.stageName
+    })
+    .from(products)
+    .leftJoin(artists, eq(products.artistId, artists.id));
+    
+    res.json(pStats);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -407,5 +427,147 @@ adminRouter.post('/artists/merge', async (req, res) => {
     res.json({ message: 'Artist profiles effectively merged and de-duped natively' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+adminRouter.get('/products/:id/full', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [productRecord] = await db.select().from(products).where(eq(products.id, Number(id))).limit(1);
+
+    if (!productRecord) {
+      res.status(404).json({ error: 'Core Product not mapped in backend schema' });
+      return;
+    }
+
+    // Pull physical tracks bridged
+    const rawTracks = await db.select({
+      songId: songs.id,
+      trackOrder: productSongs.trackOrder,
+      title: songs.title,
+      durationSeconds: songs.durationSeconds,
+      bpm: songs.bpm,
+      isrc: songs.isrc,
+      fileFormat: songs.fileFormat,
+      price: songs.price,
+      genre: songs.genre,
+      featuredArtist: songs.featuredArtist,
+      isExplicit: songs.isExplicit,
+      pathUrl: songs.pathUrl
+    })
+    .from(productSongs)
+    .innerJoin(songs, eq(productSongs.songId, songs.id))
+    .where(eq(productSongs.productId, Number(id)))
+    .orderBy(productSongs.trackOrder);
+
+    res.json({ ...productRecord, tracks: rawTracks });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+adminRouter.patch('/products/:id', memUpload.array('mediaFiles'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { 
+      productType, title, artistId, price, imagePath, year, genre, stockQuantity, trackDetails, deleteTrackIds, description 
+    } = req.body;
+
+    const productId = Number(id);
+
+    // Partial Update Base Values
+    await db.update(products).set({
+      title,
+      productType,
+      artistId: Number(artistId),
+      price: price.toString(),
+      image: imagePath,
+      year: Number(year),
+      genre,
+      stock: Number(stockQuantity),
+      description
+    }).where(eq(products.id, productId));
+
+    // Handle Removed Dependencies Natively (Cascade implicitly handles DB mappings, explicitly unlinking)
+    const targetDrops: number[] = JSON.parse(deleteTrackIds || '[]');
+    for (const did of targetDrops) {
+      await db.delete(songs).where(eq(songs.id, did));
+    }
+
+    const artistRecord = await db.select().from(artists).where(eq(artists.id, Number(artistId))).limit(1);
+    const stageName = artistRecord.length > 0 ? artistRecord[0].stageName : 'Unknown';
+    const artistTree = generateArtistTreeName(Number(artistId), stageName);
+    const mastersDir = path.join(ROOT_MEDIA_DIR, artistTree, 'products', 'music', 'masters', title);
+
+    const files = req.files as Express.Multer.File[];
+    let parsedTracks: any[] = [];
+    try {
+      parsedTracks = JSON.parse(trackDetails || '[]');
+    } catch(e) {}
+
+    if (parsedTracks.length > 0) {
+      await fsPromises.mkdir(mastersDir, { recursive: true });
+
+      let fileCursor = 0;
+      for (let i = 0; i < parsedTracks.length; i++) {
+        const trackDef = parsedTracks[i];
+        let urlPath = trackDef.existingPathUrl || '';
+
+        if (trackDef.hasFile && files[fileCursor]) {
+          const file = files[fileCursor];
+          const filename = `${trackDef.trackNumber}-${file.originalname.replace(/\\s+/g, '-').toLowerCase()}`;
+          const finalPath = path.join(mastersDir, filename);
+          await fsPromises.writeFile(finalPath, file.buffer);
+          urlPath = `/media_assets/artists/${artistTree}/products/music/masters/${title}/${filename}`;
+          fileCursor++;
+        }
+
+        if (trackDef.songId) {
+          // Explicit Update of existing isolated parameter
+          await db.update(songs).set({
+            title: trackDef.title || `Track ${trackDef.trackNumber}`,
+            pathUrl: urlPath || 'no-path',
+            isrc: trackDef.isrc || null,
+            bpm: trackDef.bpm ? Number(trackDef.bpm) : null,
+            durationSeconds: trackDef.duration ? Number(trackDef.duration) : null,
+            isExplicit: trackDef.isExplicit || false,
+            fileFormat: trackDef.fileFormat || 'MP3',
+            price: trackDef.price ? trackDef.price.toString() : '0.99',
+            genre: trackDef.genre || null,
+            featuredArtist: trackDef.featuredArtist || null,
+          }).where(eq(songs.id, trackDef.songId));
+          
+          await db.update(productSongs).set({
+            trackOrder: Number(trackDef.trackNumber) || i + 1
+          }).where(sql`${productSongs.productId} = ${productId} AND ${productSongs.songId} = ${trackDef.songId}`);
+
+        } else {
+          // Dynamic explicit insertion mapped cleanly
+          const [newSong] = await db.insert(songs).values({
+            title: trackDef.title || `Track ${trackDef.trackNumber}`,
+            artistId: Number(artistId),
+            pathUrl: urlPath || 'no-path',
+            isrc: trackDef.isrc || null,
+            bpm: trackDef.bpm ? Number(trackDef.bpm) : null,
+            durationSeconds: trackDef.duration ? Number(trackDef.duration) : null,
+            isExplicit: trackDef.isExplicit || false,
+            fileFormat: trackDef.fileFormat || 'MP3',
+            price: trackDef.price ? trackDef.price.toString() : '0.99',
+            genre: trackDef.genre || null,
+            featuredArtist: trackDef.featuredArtist || null,
+          }).returning();
+
+          await db.insert(productSongs).values({
+            productId: productId,
+            songId: newSong.id,
+            trackOrder: Number(trackDef.trackNumber) || i + 1
+          });
+        }
+      }
+    }
+
+    res.json({ message: 'Product natively synchronized!' });
+  } catch(e: any) {
+    res.status(500).json({ error: e.message });
   }
 });

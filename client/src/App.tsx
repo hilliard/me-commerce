@@ -9,7 +9,10 @@ import AdminArtists from './pages/AdminArtists';
 import AdminAddArtist from './pages/AdminAddArtist';
 import AdminEditArtist from './pages/AdminEditArtist';
 import AdminAddProduct from './pages/AdminAddProduct';
+import AdminEditProduct from './pages/AdminEditProduct';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminProducts from './pages/AdminProducts';
 import GlobalAudioPlayer from './components/GlobalAudioPlayer';
 
 function App() {
@@ -25,9 +28,12 @@ function App() {
           <Route path="/artists/:id" element={<ArtistProfile />} />
           {/* Core Admin Ecosystem Routing */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/artists" element={<AdminArtists />} />
           <Route path="/admin/artists/add" element={<AdminAddArtist />} />
           <Route path="/admin/artists/edit/:id" element={<AdminEditArtist />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/products/edit/:id" element={<AdminEditProduct />} />
           <Route path="/admin/add-product" element={<AdminAddProduct />} />
         </Routes>
       </main>

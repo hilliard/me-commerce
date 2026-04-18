@@ -103,11 +103,31 @@ export default function ProductDetail() {
                   }}
                   onClick={() => handlePlayTrack(idx)}
                 >
-                  <div style={{ display: 'flex', gap: 'var(--spacing-4)' }}>
+                  <div style={{ display: 'flex', gap: 'var(--spacing-4)', alignItems: 'center' }}>
                     <span style={{ color: 'var(--color-text-secondary)' }}>{(idx + 1).toString().padStart(2, '0')}</span>
                     <span style={{ fontWeight: isActive ? 600 : 400, color: isActive ? 'var(--color-accent-primary)' : 'inherit' }}>{track.title}</span>
                   </div>
-                  {isActive && isPlaying ? <Pause size={18} color="var(--color-accent-primary)" /> : <Play size={18} color="var(--color-text-secondary)" />}
+                  <div style={{ display: 'flex', gap: 'var(--spacing-4)', alignItems: 'center' }}>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addItem({
+                           songId: track.id,
+                           handle: `${product.handle}-track-${track.id}`,
+                           title: track.title,
+                           price: track.price ? Number(track.price) : 0.99,
+                           artist: product.artistName || product.title,
+                           image: product.image
+                        });
+                        openDrawer();
+                      }}
+                      className="btn-secondary"
+                      style={{ fontSize: '0.8rem', padding: '2px 8px', borderColor: 'var(--color-accent-secondary)', color: 'var(--color-accent-secondary)' }}
+                    >
+                      + ${(track.price && Number(track.price) > 0) ? Number(track.price).toFixed(2) : '0.99'}
+                    </button>
+                    {isActive && isPlaying ? <Pause size={18} color="var(--color-accent-primary)" /> : <Play size={18} color="var(--color-text-secondary)" />}
+                  </div>
                 </div>
               )
             })}
