@@ -12,6 +12,7 @@ export const humans = pgTable('humans', {
 export const customers = pgTable('customers', {
   humanId: integer('human_id').references(() => humans.id).primaryKey(),
   passwordHash: text('password_hash').notNull(),
+  isAdmin: boolean('is_admin').default(false).notNull(),
 });
 
 export const artists = pgTable('artists', {

@@ -1,30 +1,29 @@
 import { create } from 'zustand';
 
-export interface User {
-  id: number;
-  firstName: string;
-  email: string;
-  isAdmin: boolean;
-}
-
 interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (mockUser?: User) => void;
-  logout: () => void;
+  token: string | null;
+  user: any | null;
+  setAuth: (token: string, user: any) => void;
+  clearAuth: () => void;
 }
 
-// Sandbox defaults to Joe as Admin
-const defaultMockUser: User = {
-  id: 1,
-  firstName: 'Joe',
-  email: 'joe@me-commerce.local',
-  isAdmin: true
-};
+export const useAuthStore = create<AuthState>((set) => {
+  // Sync initially directly out of temporal browser storage
+  const storedToken = localStorage.getItem('__mec_auth_token');
+  const storedUser = localStorage.getItem('__mec_auth_user');
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: defaultMockUser,
-  isAuthenticated: true,
-  login: (mockUser) => set({ user: mockUser || defaultMockUser, isAuthenticated: true }),
-  logout: () => set({ user: null, isAuthenticated: false }),
-}));
+  return {
+    token: storedToken ? storedToken : null,
+    user: storedUser ? JSON.parse(storedUser) : null,
+    setAuth: (token, user) => {
+      localStorage.setItem('__mec_auth_token', token);
+      localStorage.setItem('__mec_auth_user', JSON.stringify(user));
+      set({ token, user });
+    },
+    clearAuth: () => {
+      localStorage.removeItem('__mec_auth_token');
+      localStorage.removeItem('__mec_auth_user');
+      set({ token: null, user: null });
+    }
+  };
+});

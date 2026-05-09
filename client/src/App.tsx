@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Collections from './pages/Collections';
@@ -21,6 +23,24 @@ import { useCartStore } from './store/cartStore';
 function App() {
   const { isDrawerOpen, closeDrawer } = useCartStore();
 
+  // Globals authentication interceptor actively attaching JWTs seamlessly to Protected /api/admin native physical endpoints
+  const originalFetch = window.fetch;
+  window.fetch = async (...args) => {
+    const [resource, config] = args;
+    if (typeof resource === 'string' && resource.startsWith('/api/admin')) {
+      const token = localStorage.getItem('__mec_auth_token');
+      const newConfig: RequestInit = { ...(config || {}) };
+      if (token) {
+        newConfig.headers = {
+          ...newConfig.headers,
+          'Authorization': `Bearer ${token}`
+        };
+      }
+      return originalFetch(resource, newConfig);
+    }
+    return originalFetch(...args);
+  };
+
   return (
     <BrowserRouter>
       <Navbar />
@@ -31,16 +51,20 @@ function App() {
           <Route path="/products/:handle" element={<ProductDetail />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/artists/:id" element={<ArtistProfile />} />
-          {/* Core Admin Ecosystem Routing */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/artists" element={<AdminArtists />} />
-          <Route path="/admin/artists/add" element={<AdminAddArtist />} />
-          <Route path="/admin/artists/edit/:id" element={<AdminEditArtist />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/products/edit/:id" element={<AdminEditProduct />} />
-          <Route path="/admin/add-product" element={<AdminAddProduct />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/login" element={<Login />} />
+          
+          {/* Core Admin Ecosystem Routing strictly bound by Protected Route middleware natively */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/artists" element={<AdminArtists />} />
+            <Route path="/admin/artists/add" element={<AdminAddArtist />} />
+            <Route path="/admin/artists/edit/:id" element={<AdminEditArtist />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/edit/:id" element={<AdminEditProduct />} />
+            <Route path="/admin/add-product" element={<AdminAddProduct />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+          </Route>
         </Routes>
       </main>
       <CartDrawer isOpen={isDrawerOpen} onClose={closeDrawer} />

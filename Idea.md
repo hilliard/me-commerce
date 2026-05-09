@@ -76,3 +76,35 @@ Other good options: Next.js or Astro for the frontend, Convex or Firebase for th
 
  (If you ever want to test the Webhook locally, Stripe provides an executable CLI stripe listen --forward-to localhost:5000/api/stripe/webhook! But your entire commerce engine is inherently perfectly theoretically ready to go!)
 
+ Try it out!
+If you attempt to navigate to http://localhost:5173/admin right now, you will hit a beautiful Admin Gateway.
+
+Your physical login credentials are:
+
+E-Mail: admin@me-commerce.local
+Password: test1234
+
+
+Premium musician gear for sci‑fi and fantasy worlds — a full-stack demo store with accounts, checkout, and admin tools. 
+(Idea for theme came from Chat-GPT, Coding in Cursor, Images created using OpenAI - gpt-image-1-mini)
+
+Stack
+| Layer | Technology |
+|--------|------------|
+| Storefront | Astro — product catalog, cart, checkout, account, search, admin UI |
+| API | Fastify (Node) |
+| Auth | Better Auth (Node) — sessions, magic links; session bridge for the API |
+| Database | PostgreSQL 16 (Docker for Dev only) — products, collections, orders, line items |
+| Payments | Stripe Checkout — server-priced line items, automatic tax, VAT-inclusive pricing |
+| Email | SMTP (Mailpit in dev) or Brevo API for transactional mail & Magic Links |
+
+Infra for local development: Docker Compose (Postgres, Mailpit, Adminer).
+
+Features
+Catalog — Products, collections, and collection membership; storefront browsing and product detail.
+Search — Server-backed search with live query handling.
+Cart & checkout — Cart persistence in the UI; Stripe Checkout redirect; success page with session reference.
+Orders — Order creation and updates via Stripe webhooks; order confirmation email with line items (Mailpit or Brevo).
+Shipping — Checkout shipping options (e.g. standard / express / next-day) integrated with Stripe and order storage.
+Accounts — Sign-in via magic link; session shared with the API for protected actions.
+Admin — Admin area on the storefront for eligible users: products, collections, orders; resend confirmation email.

@@ -12,6 +12,8 @@ import Stripe from 'stripe';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+dotenv.config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -19,7 +21,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'mock_secret_key', {
   apiVersion: '2025-02-24.acacia',
 });
 
-dotenv.config();
+
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -35,7 +37,7 @@ app.use(express.json());
 app.use('/media_assets', express.static(path.join(__dirname, '../public/media_assets')));
 
 app.use('/api/auth', authRouter);
-app.use('/api/admin', adminRouter);
+app.use('/api/admin', requireAuth, requireAdmin, adminRouter);
 app.use('/api/products', musicRouter); // Intercepts /api/products/:handle/tracks
 app.use('/api/checkout', checkoutRouter);
 
@@ -50,7 +52,7 @@ app.get('/api/products', async (req, res) => {
     res.json(allProducts);
   } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to fetch products', details: Object.getOwnPropertyNames(error).reduce((acc, key) => ({...acc, [key]: error[key]}), {}) });
+    res.status(500).json({ error: 'Failed to fetch products', details: Object.getOwnPropertyNames(error).reduce((acc, key) => ({ ...acc, [key]: error[key] }), {}) });
   }
 });
 

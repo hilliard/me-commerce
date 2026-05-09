@@ -6,7 +6,8 @@ import { useAuthStore } from '../store/authStore';
 
 const Navbar = () => {
   const { getCartCount, openDrawer } = useCartStore();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, token, clearAuth } = useAuthStore();
+  const isAuthenticated = !!token;
   const count = getCartCount();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,7 +71,10 @@ const Navbar = () => {
 
           {isAuthenticated && (
             <button 
-              onClick={logout} 
+              onClick={() => {
+                clearAuth();
+                navigate('/login');
+              }} 
               style={{ padding: 'var(--spacing-2) var(--spacing-4)', backgroundColor: 'var(--color-accent-primary)', color: 'white', borderRadius: 'var(--radius-sm)', border: 'none', fontWeight: 600, cursor: 'pointer' }}
             >
               Log out

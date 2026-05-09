@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { db } from '../db/db.js';
+import { customers } from '../db/schema.js';
+import { eq } from 'drizzle-orm';
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
@@ -19,12 +22,23 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
   }
 };
 
-export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
+export const requireAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const user = (req as any).user;
-  // Simulating human-centric role check by verifying the admin user seeded earlier
-  if (!user || user.email !== 'admin@me-commerce.local') {
-    res.status(403).json({ error: 'Admin access required' });
+  
+  if (!user || !user.humanId) {
+    res.status(403).json({ error: 'Administrative human identity strictly required' });
     return;
   }
-  next();
+
+  try {
+    const [customerRecord] = await db.select().from(customers).where(eq(customers.humanId, user.humanId)).limit(1);
+    
+    if (!customerRecord || !customerRecord.isAdmin) {
+      res.status(403).json({ error: 'Explicit Unauthorized Zero-Trust Failure' });
+      return;
+    }
+    next();
+  } catch (e) {
+    res.status(500).json({ error: 'Database Authorization Failed Structurally' });
+  }
 };
