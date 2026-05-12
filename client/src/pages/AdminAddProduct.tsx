@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 interface TrackInput {
   id: number;
@@ -186,7 +186,7 @@ export default function AdminAddProduct() {
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--spacing-4)' }}>Add songs/tracks for this release (optional - can be added later)</p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-6)', marginBottom: 'var(--spacing-6)' }}>
-              {tracks.map((track, i) => (
+              {tracks.map((track) => (
                 <div key={track.id} className="glass-panel" style={{ padding: 'var(--spacing-6)', position: 'relative', borderLeft: '3px solid var(--color-accent-secondary)' }}>
 
                   <div className="flex-between" style={{ marginBottom: 'var(--spacing-6)' }}>

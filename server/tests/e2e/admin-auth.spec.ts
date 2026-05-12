@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const ADMIN_EMAIL = 'admin@me-commerce.local';
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD = 'test1234';
 
 test.describe('Admin path - Protected Route (E2E)', () => {
   test('redirects unauthenticated user to login', async ({ page }) => {

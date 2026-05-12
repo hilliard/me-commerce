@@ -54,7 +54,7 @@ export default function Login() {
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-          <label style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>E-Mail Address</label>
+          <label style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Email</label>
           <input 
             type="email" 
             value={email}
@@ -66,7 +66,7 @@ export default function Login() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-          <label style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>System Password</label>
+          <label style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Password</label>
           <input 
             type="password" 
             value={password}

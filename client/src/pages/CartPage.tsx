@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router';
 import { useCartStore } from '../store/cartStore';
 import { CheckCircle, XCircle } from 'lucide-react';

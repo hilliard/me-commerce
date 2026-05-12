@@ -6,10 +6,9 @@
 
 - Navigate to http://localhost:5600
 - Click "Log in"
-- Enter credentials:
-  - **Username**: lucy77
-  - **Password**: test123
-- Lucy Smith already has admin role assigned
+- Enter credentials (the form uses **email**, not a username):
+  - **Email**: `admin@me-commerce.local` (run `npm run admin:seed` in the `server` folder if that user is missing)
+  - **Password**: `test1234` (dev login bypass in `server/src/routes/auth.ts`; not the same string as the hash stored by `admin:seed`)
 
 ### Step 2: See Admin Features Appear
 
@@ -217,7 +216,7 @@ SQLite database with:
 
 ### Scenario 1: Promote Customer to Admin
 
-1. Log in as admin (lucy77)
+1. Log in as admin (`admin@me-commerce.local` / `test1234`)
 2. Go to Admin Panel
 3. Search for user by name
 4. Click "Edit"
@@ -257,7 +256,7 @@ node test-admin.js
 
 This script:
 
-- Finds test user (lucy77)
+- Finds the seeded admin human (by email in your DB)
 - Checks current roles
 - Assigns admin role if not already assigned
 - Verifies the assignment
@@ -330,7 +329,7 @@ curl -X PUT http://localhost:5600/api/admin/users/1 \
 
 **Last Updated**: Admin System Implementation Complete
 **Status**: ✅ Ready for Production
-**Test User**: lucy77 (password: test123)
+**Test admin login**: Email `admin@me-commerce.local`, password `test1234`
 
 Thanks! The admin system is now fully functional with:
 
@@ -343,4 +342,4 @@ Thanks! The admin system is now fully functional with:
 ✅ Delegated event handling - Edit buttons working reliably
 ✅ Defensive coding - Handles missing DOM elements gracefully
 
-The admin panel is ready to use. Log in as lucy77 (password: test123) to access it! 🎵
+The admin panel is ready to use. Log in with the admin **email** and password above (not a separate username field). 🎵

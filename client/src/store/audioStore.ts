@@ -4,6 +4,7 @@ export interface Track {
   id: number;
   title: string;
   url: string;
+  price?: string | number;
 }
 
 interface AudioState {

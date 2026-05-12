@@ -20,7 +20,6 @@ const AdminArtists = () => {
   // Legacy Tool Context
   const [humanId, setHumanId] = useState('');
   const [stageName, setStageName] = useState('');
-  const [bio, setBio] = useState('');
 
   const fetchArtists = () => {
     fetch('/api/admin/artists/stats')
@@ -70,7 +69,7 @@ const AdminArtists = () => {
       const res = await fetch('/api/admin/artists', {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ humanId, stageName, bio })
+         body: JSON.stringify({ humanId, stageName, bio: '' })
       });
       const data = await res.json();
       alert(data.message || data.error);

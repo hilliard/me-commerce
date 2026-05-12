@@ -721,6 +721,6 @@ Perfect! Now let me verify everything is working correctly by checking the admin
 Open untrusted web page?
 http://localhost:5600/admin-dashboard.html
 
-To test: Login as lucy77 (password: test123)
+To test: Login with email `admin@me-commerce.local` and password `test1234` (see `client/src/pages/Login.tsx` and `server/src/routes/auth.ts`).
 
 taskkill /F /IM node.exe 2>$null; Start-Sleep -Seconds 2

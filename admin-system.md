@@ -73,8 +73,8 @@
 
 ## Current Admin Status
 
-- **Test User**: lucy77 (already has admin role assigned)
-- **Password**: test123 (from original seeding)
+- **Test admin**: Email `admin@me-commerce.local` (from `server/scripts/adminSeed.ts`; use `npm run admin:seed` in `server` if missing)
+- **Password**: `test1234` for local login (see `server/src/routes/auth.ts` mock check)
 - **Roles**: admin, customer
 
 ## How to Use
@@ -211,7 +211,7 @@ All endpoints protected by requirePermission('users.manage')
 Navigation link only shows for admin users
 Follows Me-Commerce auth patterns
 How to Use
-Log in as admin (lucy77 / test123)
+Log in as admin (`admin@me-commerce.local` / `test1234`)
 Click "Manage Artists" in navigation
 To Merge:
 Step 1: Select primary artist (keeps this name)
